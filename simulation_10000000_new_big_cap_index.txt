@@ -1,0 +1,1 @@
+['amt', 'spg', 'cci', 'pld', 'psa', 'well', 'ggp', 'bxp', 'vtr', 'avb', 'dlr', 'eqr', 'sbac', 'wy', 'nly', 'hcp']
