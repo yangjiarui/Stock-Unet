@@ -10,6 +10,8 @@ raw data is provided(l fetchh it from Bloomberg Terminal)
 
 
 thanks for GeFroce 1080Ti 
+
+
 thanks for you attention
 
 good to contanct me
