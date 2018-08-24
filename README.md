@@ -15,3 +15,9 @@ thanks for GeFroce 1080Ti
 thanks for your attention
 
 good to contanct me
+
+
+l have just send some py scrips about dealing with NAN : deconposition  ARIMA predict and so on 
+with me a great future!!!
+
+ME ME DA -----  ^_^    ^_^     ^_^    ^_^
