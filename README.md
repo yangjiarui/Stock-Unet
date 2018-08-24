@@ -20,4 +20,9 @@ good to contanct me
 l have just send some py scrips about dealing with NAN : deconposition  ARIMA predict and so on 
 with me a great future!!!
 
+
+
+
+glad to contact me : weichat  834235185
+
 ME ME DA -----  ^_^    ^_^     ^_^    ^_^
