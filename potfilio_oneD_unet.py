@@ -335,7 +335,7 @@ def get_1d_unet(df):
     #upsample
     up1=merge([UpSampling1D(size=2)(conv9),conv8],mode='concat',concat_axis=2)
     print('up1',up1)
-    upconv1=Conv1D(1024,kernel_size=5,strides=1,activation='relu',padding='same')(up1)
+    upconv1=Conv1D(1024,kernel_size=2,strides=1,activation='relu',padding='same')(up1)
     #with tf.Session() as sess:
 
     #    sess.run(tf.global_variables_initializer())
@@ -359,9 +359,9 @@ def get_1d_unet(df):
     #(256,4096*2)
 
     up3 = merge([UpSampling1D(size=2)(upconv2), conv6], mode='concat', concat_axis=2)
-    upconv3 = Conv1D(256, kernel_size=2,strides=1, activation='relu', padding='same')(up3)
+    upconv3 = Conv1D(256, kernel_size=5,strides=1, activation='relu', padding='same')(up3)
     upconv3 = Dropout(0.4)(upconv3)
-    upconv3 = Conv1D(256, kernel_size=2,strides=1, activation='relu', padding='same')(upconv3)
+    upconv3 = Conv1D(256, kernel_size=5,strides=1, activation='relu', padding='same')(upconv3)
     #(512,4096)
     up4= merge([UpSampling1D(size=2)(upconv3), conv5], mode='concat', concat_axis=2)
     upconv4 = Conv1D(128 , kernel_size=2,strides=1, activation='relu', padding='same')(up4)
@@ -369,20 +369,20 @@ def get_1d_unet(df):
     upconv4 = Conv1D(128 , kernel_size=2,strides=1, activation='relu', padding='same')(upconv4)
     #(1024,2048)
     up5 = merge([UpSampling1D(size=2)(upconv4), conv4], mode='concat', concat_axis=2)
-    upconv5 = Conv1D(64, kernel_size=2,strides=1, activation='relu', padding='same')(up5)
+    upconv5 = Conv1D(64, kernel_size=5,strides=1, activation='relu', padding='same')(up5)
     upconv5 = Dropout(0.4)(upconv5)
-    upconv5 = Conv1D(64, kernel_size=2,strides=1, activation='relu', padding='same')(upconv5)
+    upconv5 = Conv1D(64, kernel_size=5,strides=1, activation='relu', padding='same')(upconv5)
     #(2048,1024)
     up6 = merge([UpSampling1D(size=2)(upconv5), conv3], mode='concat', concat_axis=2)
     upconv6 = Conv1D(32, kernel_size=5,strides=1, activation='relu', padding='same')(up6)
     upconv6 = Dropout(0.4)(upconv6)
-    upconv6 = Conv1D(32, kernel_size=2,strides=1, activation='relu', padding='same')(upconv6)
+    upconv6 = Conv1D(32, kernel_size=5,strides=1, activation='relu', padding='same')(upconv6)
     #(4096,512)
     print('up6:',upconv6)
     up7 = merge([UpSampling1D(size=2)(upconv6), conv2], mode='concat', concat_axis=2)
-    upconv7 = Conv1D(16, kernel_size=2,strides=1, activation='relu', padding='same')(up7)
+    upconv7 = Conv1D(16, kernel_size=5,strides=1, activation='relu', padding='same')(up7)
     upconv7 = Dropout(0.4)(upconv7)
-    upconv7 = Conv1D(16, kernel_size=2,strides=1, activation='relu', padding='same')(upconv7)
+    upconv7 = Conv1D(16, kernel_size=5,strides=1, activation='relu', padding='same')(upconv7)
 
 
 
@@ -443,6 +443,7 @@ def get_1d_unet(df):
 
 from keras.callbacks import History,LearningRateScheduler,ModelCheckpoint
 from keras.callbacks import History
+import matplotlib.pyplot as plt
 #his=History()
 #model.fit(np.array(x).reshape(1,len(x),1),y.reshape(1,len(y)),batch_size=4,epochs=4)
 #          callbacks=[check])
@@ -457,7 +458,7 @@ def sigmoid(x):
     return 1.0/1-np.exp(-x)
 
 
-def test(struddle,df,labels,NUM_col):
+def test(struddle,df,labels,NUM_col,epoch,bz):
     global cutted_full_index
     #time.sleep(30)
   #  df= np.log(df/df.shift(1))[1:4097]
@@ -465,6 +466,20 @@ def test(struddle,df,labels,NUM_col):
    # df=df[:4096]
    # labels=labels[:4096]
  #   cur=sigmoid(df.values)
+
+
+    # new=pd.DataFrame(columns=df.columns)
+    # for seq,col_name in enumerate(df.columns):
+    #     current_col=[]
+    #     for _ in range(4):
+    #         cur=MinMaxScaler().fit_transform(df.iloc[:,seq].reshape(-1,1)[_:_+1024])   ##128*32=1024
+    #         for j in cur:
+    #             current_col.append(j)
+    #     new[col_name]=pd.Series(current_col)
+    # df=new
+
+
+
     cur=MinMaxScaler().fit_transform(df)
     df=pd.DataFrame(cur,columns=df.columns)   #cur.reshape(-1)
 
@@ -479,33 +494,37 @@ def test(struddle,df,labels,NUM_col):
     cbks = [tb_cb]
     #history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
     #                    verbose=1, callbacks=cbks, validation_data=(X_test, Y_test))
-    pd.DataFrame(df).to_csv('df.csv')
+    pd.DataFrame(df).to_csv('model/df.csv')
 
     #mea=np.mean(df.values,axis=0)
     #std=np.std(df.values,axis=0)
     #train_df=(df-mea) / std
     train_df=StandardScaler().fit_transform(df)   #changed it
     train_df=df.values
+    plt.figure()
+    plt.title('oringin')
+    plt.plot((train_df[:,NUM_col]))
+    plt.show()
     #print(np.array(train_df))
     #train_df=df.values
     #q=MinMaxScaler()
 
-    pd.DataFrame(train_df).to_csv('train_df.csv')
+    pd.DataFrame(train_df).to_csv('model/train_df.csv')
     #train_df=q.fit_transform(train_df)
     #train_df = train_df.fillna(method='bfill')
     #train_df = train_df.fillna(method='ffill')
     #pd.DataFrame(train_df).plot()
     #plt.show()
     model.fit(train_df.reshape(-1,len(df),1),np.array(labels).reshape(-1,len(labels),1),
-              verbose=1,batch_size=8,epochs=3)#validation_split=0.2)#,callbacks=[model_checkpoint])  # acc:  around better 70%
+              verbose=1,batch_size=bz,epochs=epoch)#validation_split=0.2)#,callbacks=[model_checkpoint])  # acc:  around better 70%
     loss,acc=model.evaluate(train_df.reshape(-1,len(df),1),np.array(labels).reshape(-1,len(labels),1))
     #print(df.shape,np.array(labels).shape)
 
     #loss=model.predict(scale(df).reshape(1,len(df),1))-np.array(label).reshape(1,len(label),1)
    # model.save(str(struddle)+'model.h5')
     json_string = model.to_json()  # 等价于 json_string = model.get_config()
-    open('./models/'+str(struddle)+'_model_architecture.json', 'w').write(json_string)
-    model.save_weights('./models/'+str(struddle)+'_model_weights.h5')
+    open('model/'+str(struddle)+'_model_architecture.json', 'w').write(json_string)
+    model.save_weights('model/'+str(struddle)+'_model_weights.h5')
     # 加载模型数据和weights
     #model = model_from_json(open('my_model_architecture.json').read())
     #model.load_weights('my_model_weights.h5')
@@ -523,7 +542,7 @@ def test(struddle,df,labels,NUM_col):
    #  model.save_weights(str(struddle)+'model.h5')
     del model
 
-    w['predicted'].to_csv(str(struddle)+'label.csv')
+    w['predicted'].to_csv('model/'+str(struddle)+'label.csv')
     #df=pd.read_csv('label.csv',header=None)
     #print(w)
     print('-----------inspiring_1st_data_predicted--------------')
@@ -531,26 +550,44 @@ def test(struddle,df,labels,NUM_col):
     w=w['predicted']
 
     w=w.astype('float64')
-    q=w.describe()
+    plt.figure()
+    plt.title('predict_plot')
+    plt.plot(w)
+    plt.show()
+    plt.figure()
+    #plt.title('predict_hist')
+    w.hist(bins=90)
+    plt.show()
+#    q=w.sort_values(by=1,axis=1)
     #print(q.head())
     print(20*'@'+'describe:'+'#'*10)
     #print('\ntoday_is_',df.index[0])
 
-
-
+   # w = w[int(0.25 * len(w)):int(0.75 * len(w))]
+    q=w.describe()
     print('\n')
 
     for seq,k in enumerate([df.columns[NUM_col]]):
         print(seq)
-        if w.iloc[0,seq]<=q.iloc[:,seq]['25%']:
-
+        if w.iloc[0,seq]<=q.iloc[:,seq]['25%']:   ####np.mean(w)[0]:   #######q.iloc[:,seq]['25%']:
             #print('tomorrow is bigger than today')
             #print( k,cutted_full_index.iloc[0,seq],'bigger',acc)
-            yield k,cutted_full_index.iloc[0,seq],'bigger',acc,train_df
+            yield k,cutted_full_index.iloc[0,NUM_col],'bigger',acc,train_df
         else:
             #print('tomorrow is lowwer than today')
             #print( k,cutted_full_index.iloc[0,seq],'lowwer',acc)
-            yield k,cutted_full_index.iloc[0,seq],'lowwer',acc,train_df
+            yield k,cutted_full_index.iloc[0,NUM_col],'lowwer',acc,train_df
+    #
+    # for seq,k in enumerate([df.columns[NUM_col]]):
+    #     print(seq)
+    #     if  w.values[0][0]<=np.mean(w)[0]:   ####np.mean(w)[0]:   #######q.iloc[:,seq]['25%']:
+    #     #print('tomorrow is bigger than today')
+    #     #print( k,cutted_full_index.iloc[0,seq],'bigger',acc)
+    #         yield k,cutted_full_index.iloc[0,NUM_col],'bigger',acc,train_df
+    #     else:
+    #     #print('tomorrow is lowwer than today')
+    #     #print( k,cutted_full_index.iloc[0,seq],'lowwer',acc)
+    #         yield k,cutted_full_index.iloc[0,NUM_col],'lowwer',acc,train_df
 
 
 import os
@@ -559,7 +596,7 @@ import sys
 #reload(sys)
 #sys.setdefaultencoding('ISO-8859-1')`
 #final=[
-file_list=os.listdir('factors/avalible_REITs')[:]
+file_list=os.listdir('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs')[:]
 def normalize_raw_data(df):
     j=[]
 #    j.append(0)
@@ -579,7 +616,7 @@ def make_df_from_files(file_list):
     index=pd.DataFrame()
     w=pd.DataFrame()
     for i in file_list:
-        data=pd.read_csv('factors/avalible_REITs/'+i,header=None)
+        data=pd.read_csv('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs/'+i,header=None)
         #data=data.sort_index(ascending=False)
        # data=data[:5000]
 
@@ -605,8 +642,8 @@ def make_one_col_label(new):
     new=new.values
     label=[]
     label.append(1)
-    for i in range(len(new)-1):
-        if new[i+1]>=new[i]:
+    for i in range(1,len(new)):
+        if new[i]>=new[i-1]:
             label.append(1)
         else:
             label.append(0)
@@ -615,11 +652,15 @@ def make_one_col_label(new):
 #with open('results.txt','w') as f:
 #def MainRange(start,stop):
 save=pd.DataFrame()
-name, current_date, next_trading_day, acc_is = [], [], [], []
+name, current_date, next_trading_day, acc_is , true_index= [],[], [], [], []
 next_trading_mode=[]
 #for s in range(2):
 
-def Main(start,end,interval,NUM_col=0):
+def Main(start,end,interval,NUM_col=0,epoch=3,bz=4):
+    """
+
+
+    """
     global cutted_full_index
     for i in range(start,end,interval):
         print('\nDone\n')
@@ -654,21 +695,25 @@ def Main(start,end,interval,NUM_col=0):
         #a,b,c=test(df,labels)   #like 3tupple: ('ge.xlsx', '03/20/2018', 'lowwer', 0.12144715338945389)
                                 #('aapl.xlsx', '03/20/2018', 'lowwer', 0.12144715338945389)
 
-
+        # labels = labels.iloc[i + test_num:4096 + i + test_num]
         struddle=i
-        for a,b,c,d,oringn_df in test(struddle,df,labels,NUM_col=NUM_col):
+
+        for a,b,c,d,oringn_df in test(struddle,df,labels,NUM_col=NUM_col,epoch=epoch,bz=bz):
             name.append(a)
             current_date.append(b)
             next_trading_day.append(c)
             acc_is.append(d)
+            true_index.append(i)
             #f.write(str(['name:',a,'current_date:',b,'next_trading_day:',c,'acc_is:',d])+'\n')
-
+    save['true_index']=true_index
     save['name']=pd.Series(name)
     save['current_date']=pd.Series(current_date)
     save['next_trading_day']=pd.Series(next_trading_day)
     save['acc_is']=pd.Series(acc_is)
-    print(save)
-    return save,oringn_df,labels.iloc[:,NUM_col]
+    save.index=save['true_index']
+    sa=save.iloc[:,1:]
+    print(sa)
+    return sa,oringn_df,labels.iloc[:,NUM_col]
 
 #if sum(save['acc_is'])>=2.2: #and np.std(save['acc_is'])<=0.08:
 #    print ('can use')
@@ -689,59 +734,63 @@ def evaluate_mode(defined_df,NUM_col):
     j=0
     good=[]
     for seq,i in enumerate(defined_df['current_date']):
-        cur_index=full_index[full_index.iloc[:,0]==i].index[0]
+        cur_index=full_index[full_index.iloc[:,NUM_col]==i].index[0]
        # print(cur_index)
         if cur_index == 0:
-            print('model '+str(seq)+' contains_unknown_predict')
+            print('model '+str(cur_index)+' contains_unknown_predict')
             continue
         else:
            # if defined_df['next_trading_day'][cur_index]==jugment(cur_index,full_df):
-            if defined_df['next_trading_day'][seq] == jugment(cur_index, full_df,NUM_col=NUM_col):
+            q=defined_df['next_trading_day']
+            if q.iloc[seq] == jugment(cur_index, full_df,NUM_col=NUM_col):
                 j+=1
-                good.append(seq)
-                print(str(seq)+' model_is_correct\n')
-            #else:
-             #   good.append(seq)
+                good.append(cur_index)
+                print(str(cur_index)+' model_is_correct\n')
+            # else:
+            #     good.append(0)
     print('\nrealized_acc(nomarator contains first Index):',j/len(defined_df.index))
     return good,j/len(defined_df.index)
-NUM_col=29
-resualt_file,oring_df,index_col=Main(start=0,end=11,interval=1,NUM_col=NUM_col)
+NUM_col=0  ###pld good   ####5 good
+resualt_file,oring_df,index_col=Main(start=30,end=36,interval=1,NUM_col=NUM_col,epoch=3,bz=4)
 good,score=evaluate_mode(resualt_file,NUM_col=NUM_col)
 
 
-pre=pd.read_csv('factors/avalible_REITs/'+file_list[NUM_col],header=None)
+pre=pd.read_csv('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs/'+file_list[NUM_col],header=None)
 pre=MinMaxScaler().fit_transform(pre.iloc[:,1].values.reshape(-1,1))[:4096]
 #from keras.models import load_model
 
 look=[]
 
-if index_col.sum()/len(index_col) >= 0.5:
+if index_col.sum()/len(index_col) < 0.5:
     most_offen='lowwer'
     other='bigger'
 else:
     most_offen='bigger'
     other='lowwer'
+print('current dete is %s' % full_index.iloc[0,NUM_col])
 if len(good)>=1 or len(good)%2==1:
     for g in good:
-        new_model = model_from_json('./models/'+open(str(g)+'_model_architecture.json').read())
-        new_model.load_weights('./models/'+(str(g))+'_model_weights.h5')
+        new_model = model_from_json(open('model/'+str(g)+'_model_architecture.json','r').read())
+        new_model.load_weights('model/'+str(g)+'_model_weights.h5')
        # new_model=load_model(str(good[0])+'model.h5',custom_objects={'dice_coef_loss_loss':dice_coef_loss})
-        pre=new_model.predict(pre.reshape(-1,4096,1))
-        pre=pd.Series(pre.reshape(-1)).astype('float64')
 
-        q=pre.describe()
-        if pre[0] <= q['mean']:
+
+        pr=new_model.predict(pre.reshape(-1,4096,1))
+        p=pd.Series(pr.reshape(-1)).astype('float64')
+     #   q = p.sort_values()
+        q=p.describe()
+        if p.values[0]  <=q['25%']:     ######np.mean(p[int(0.25*len(p)):int(0.75*len(p))]):
 
             #print('tomorrow is bigger than today')
             #print( k,cutted_full_index.iloc[0,seq],'bigger',acc)
     #        print ('next traiding day is lowwer')
-            look.append(1)
+            look.append(0)
         else:
             #print('tomorrow is lowwer than today')
             #print( k,cutted_full_index.iloc[0,seq],'lowwer',acc)
       #      print ('next traiding day is bigger')
-            look.append(0)
-    if np.mean(look) >= 0.5:
+            look.append(1)
+    if np.mean(look) < 0.5:
         print('next traiding day is %s' % most_offen)
     else:
         print('next traiding day is %s or same' % other)

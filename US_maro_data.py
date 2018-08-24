@@ -13,7 +13,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.grid_search import GridSearchCV
 
-df=pd.read_excel('/media/jerry/JERRY/MASTER_project/us_MACRO.xls').iloc[6:-2,:]
+df=pd.read_excel('us_MACRO.xls').iloc[6:-2,:]
 index=df.iloc[:,0]
 df.index=pd.DatetimeIndex(index)
 a=df['LIBOR:美元:隔夜'][:]
@@ -31,19 +31,19 @@ X_train, X_test, y_train, y_test = train_test_split(
     ds.values, d.values, test_size=0.25, random_state=2)
 
 # 设置gridsearch的参数
-tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3],
-                     'C': [10, 100]},
-                    {'kernel': ['linear'], 'C': [100, 1000]}]
+tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
+                     'C': [1, 10, 100, 1000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
 
 #设置模型评估的方法.如果不清楚,可以参考上面的k-fold章节里面的超链接
-scores = [ 'neg_mean_squared_error']
+scores = [ 'r2','roc_auc']
 
 for score in scores:
     print("# Tuning hyper-parameters for %s" % score)
     print()
 
     #构造这个GridSearch的分类器,5-fold
-    clf = GridSearchCV(SVR(), tuned_parameters, cv=2,
+    clf = GridSearchCV(SVR(), tuned_parameters, cv=5,
                        scoring='%s' % score)
     #只在训练集上面做k-fold,然后返回最优的模型参数
     clf.fit(X_train, y_train)

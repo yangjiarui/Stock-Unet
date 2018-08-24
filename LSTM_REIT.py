@@ -20,7 +20,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from glob import glob
 import numpy as np
-os.chdir('/media/jerry/JERRY/MASTER_project(0)/factors')
+os.chdir('/home/jerry/PycharmProjects/untitled/venv/MASTER_project/factors')
 # load the dataset
 import pandas as pd
 ####train avaliable REIT-stocks

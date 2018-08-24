@@ -6,8 +6,8 @@
 '''
 
 import numpy,sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
 import matplotlib.pyplot as plt
 from pandas import read_csv
 import math,os
@@ -20,7 +20,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from glob import glob
 import numpy as np
-os.chdir('/media/jerry/JERRY/MASTER_project(0)/factors')
+os.chdir('/home/jerry/inteligient/MASTER_project/factors')   #/home/jerry/inteligient/MASTER_project/factors
 # load the dataset
 import pandas as pd
 ####train avaliable REIT-stocks
@@ -33,7 +33,7 @@ dataframe = read_csv(li[0],index_col='Unnamed: 0')
 
 
 ####train_all_US_commom_stocks
-dataframe = pd.read_excel('/media/jerry/JERRY/MASTER_project(0)/factors/all.xlsx')
+dataframe = pd.read_excel('/home/jerry/inteligient/MASTER_project/factors/all.xlsx')
 dataframe=dataframe.dropna(how='all',axis=0)
 dataframe.index=pd.DatetimeIndex(dataframe.index.droplevel())
 def standarized_data(dataframe,foward_steps):
@@ -59,7 +59,7 @@ dataframe=dataframe.sort_index()
 
 
 #train china 300 stocks
-list_names=os.listdir('/media/jerry/JERRY/MASTER_project(0)/a_all_data')
+list_names=os.listdir('/home/jerry/inteligient/MASTER_project/a_all_data')
 dataframe=pd.DataFrame()
 def standarized_data_Serires(Serise,foward_steps):
     all=pd.Series()
@@ -121,7 +121,8 @@ switch=1
 indexxx=0
 #while switch!=4:
 all_train=[]
-df=pd.read_csv('/home/jerry/PycharmProjects/untitled/venv/MASTER_project/a_all_data/300017.SZ.CSV')
+f=open('/home/jerry/inteligient/MASTER_project/a_all_data/000001.SZ.csv','r')
+df=pd.read_csv(f)
 df.index=pd.DatetimeIndex(df.iloc[:,2])
 #df=df[df.index>'2017-5'].iloc[:,3]
 
@@ -173,7 +174,7 @@ while switch:
     #new_stock_plot=[]
     model=get_LSTM_model()
     print (model.summary())
-    print trainX.shape,trainY.shape
+    print (trainX.shape,trainY.shape)
     model.fit(trainX, trainY, epochs=15, batch_size=8, verbose=2, validation_split=0.2)
 
     trainPredict = model.predict(trainX)
@@ -209,7 +210,7 @@ while switch:
 
     new_dataset=q
 #        print len(q)
-    print 'current_trading_date_is: '+str(dff.index[-1])+' '+str(indexxx)+'trading days after----'
+    print ('current_trading_date_is: '+str(dff.index[-1])+' '+str(indexxx)+'trading days after----')
 
 
 
@@ -231,6 +232,7 @@ while switch:
     plt.plot(new_stock_plot,'*y',label='projected_one_step')
     plt.legend(loc=0)
     plt.grid(True)
+    plt.show()
 
 
 
@@ -239,7 +241,7 @@ while switch:
     indexxx+=1
 
 
-    if switch/100 == 1:
+    if switch/10 == 1:
         switch = 0
     else:
         switch += 1
