@@ -596,7 +596,7 @@ import sys
 #reload(sys)
 #sys.setdefaultencoding('ISO-8859-1')`
 #final=[
-file_list=os.listdir('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs')[:]
+file_list=os.listdir('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs')[:]
 def normalize_raw_data(df):
     j=[]
 #    j.append(0)
@@ -616,7 +616,7 @@ def make_df_from_files(file_list):
     index=pd.DataFrame()
     w=pd.DataFrame()
     for i in file_list:
-        data=pd.read_csv('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs/'+i,header=None)
+        data=pd.read_csv('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs/'+i,header=None)
         #data=data.sort_index(ascending=False)
        # data=data[:5000]
 
@@ -750,12 +750,12 @@ def evaluate_mode(defined_df,NUM_col):
             #     good.append(0)
     print('\nrealized_acc(nomarator contains first Index):',j/len(defined_df.index))
     return good,j/len(defined_df.index)
-NUM_col=0  ###pld good   ####5 good
-resualt_file,oring_df,index_col=Main(start=30,end=36,interval=1,NUM_col=NUM_col,epoch=3,bz=4)
+NUM_col=12  ###pld good   ####5 good
+resualt_file,oring_df,index_col=Main(start=8,end=16,interval=1,NUM_col=NUM_col,epoch=3,bz=4)
 good,score=evaluate_mode(resualt_file,NUM_col=NUM_col)
 
 
-pre=pd.read_csv('/home/jerry/inteligient/MASTER_project/factors/avalible_REITs/'+file_list[NUM_col],header=None)
+pre=pd.read_csv('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs/'+file_list[NUM_col],header=None)
 pre=MinMaxScaler().fit_transform(pre.iloc[:,1].values.reshape(-1,1))[:4096]
 #from keras.models import load_model
 
