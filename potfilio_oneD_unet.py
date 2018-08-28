@@ -1,9 +1,11 @@
-#-*-coding:utf-8-*-
+# encoding: utf-8
+'''
+@author: headsome jerry
+@time:18-8-28下午3:54
+@file_name:potfilio_oneD_unet.py
 '''
 
-@author:HANDSOME_JERRY
-@time:'18-6-11上午11:54'
-'''
+
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import numpy as np
@@ -458,7 +460,7 @@ def sigmoid(x):
     return 1.0/1-np.exp(-x)
 
 
-def test(struddle,df,labels,NUM_col,epoch,bz):
+def te_st_model(struddle,df,labels,NUM_col,epoch,bz):
     global cutted_full_index
     #time.sleep(30)
   #  df= np.log(df/df.shift(1))[1:4097]
@@ -596,7 +598,7 @@ import sys
 #reload(sys)
 #sys.setdefaultencoding('ISO-8859-1')`
 #final=[
-file_list=os.listdir('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs')[:]
+file_list=os.listdir('factors/avalible_REITs')[:]
 def normalize_raw_data(df):
     j=[]
 #    j.append(0)
@@ -616,7 +618,7 @@ def make_df_from_files(file_list):
     index=pd.DataFrame()
     w=pd.DataFrame()
     for i in file_list:
-        data=pd.read_csv('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs/'+i,header=None)
+        data=pd.read_csv('factors/avalible_REITs/'+i,header=None)
         #data=data.sort_index(ascending=False)
        # data=data[:5000]
 
@@ -674,9 +676,9 @@ def Main(start,end,interval,NUM_col=0,epoch=3,bz=4):
         #ds = ds.fillna(method='ffill')
 
 
-        test_num=0
-        df = full_df[i+test_num:4096 + i+test_num ]  # cut the oringin data
-        cutted_full_index=full_index[test_num+i:test_num+4096+i]
+        te_st_num=0
+        df = full_df[i+te_st_num:4096 + i+te_st_num ]  # cut the oringin data
+        cutted_full_index=full_index[te_st_num+i:te_st_num+4096+i]
         #df = ds.iloc[0:, [1, 2]]
         #df=df.dropna(axis=0,how='any')
         #df.index = df.iloc[:, 0]
@@ -698,7 +700,8 @@ def Main(start,end,interval,NUM_col=0,epoch=3,bz=4):
         # labels = labels.iloc[i + test_num:4096 + i + test_num]
         struddle=i
 
-        for a,b,c,d,oringn_df in test(struddle,df,labels,NUM_col=NUM_col,epoch=epoch,bz=bz):
+        for a,b,c,d,oringn_df in te_st_model(
+            struddle,df,labels,NUM_col=NUM_col,epoch=epoch,bz=bz):
             name.append(a)
             current_date.append(b)
             next_trading_day.append(c)
@@ -750,12 +753,12 @@ def evaluate_mode(defined_df,NUM_col):
             #     good.append(0)
     print('\nrealized_acc(nomarator contains first Index):',j/len(defined_df.index))
     return good,j/len(defined_df.index)
-NUM_col=12  ###pld good   ####5 good
+NUM_col=15  ###pld good   ####5 good
 resualt_file,oring_df,index_col=Main(start=8,end=16,interval=1,NUM_col=NUM_col,epoch=3,bz=4)
 good,score=evaluate_mode(resualt_file,NUM_col=NUM_col)
 
 
-pre=pd.read_csv('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs/'+file_list[NUM_col],header=None)
+pre=pd.read_csv('factors/avalible_REITs/'+file_list[NUM_col],header=None)
 pre=MinMaxScaler().fit_transform(pre.iloc[:,1].values.reshape(-1,1))[:4096]
 #from keras.models import load_model
 
