@@ -10,7 +10,7 @@ macro,micro=pd.read_csv('final_macro_factors.csv'),pd.read_csv('final_micro_fact
 def pocess(df):
     df.index=df.iloc[:,0]
     return df.iloc[:,1:]
-names=os.listdir('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs')
+names=os.listdir('factors/avalible_REITs')
 
 
 
@@ -98,9 +98,9 @@ def Main(new,pre_mean_step,epoch):
 
 
 stat={}
-for i in names[:8]:
+for i in names[:]:
     time.sleep(5)
-    f=open('/media/jerry/test/git_version_control/Stock-Unet/factors/avalible_REITs/'+i,'r')
+    f=open('factors/avalible_REITs/'+i,'r')
     cur=pd.read_csv(f,header=None)
 
     print(i)
@@ -129,15 +129,15 @@ for i in names[:8]:
         new['处理后股票类点击量']=cur['rent_stock_click']
         new = new.dropna(axis=0, how='any')
         acc,model=Main(new,pre_mean_step=150,epoch=25)
-        model.save('/media/jerry/test/git_version_control/Stock-Unet/model/%s_acc_%s.h5'%(i.split('.')[0],acc))
+        # model.save('/media/jerry/test/git_version_control/Stock-Unet/model/%s_acc_%s.h5'%(i.split('.')[0],acc))
         stat[i.split('.')[0]]=acc
         # plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
         # plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
-        # new.plot(subplots=True, figsize=(18, 25))
-        # plt.legend(loc=0)
-        #plt.grid(True)
-        # sns.pairplot(new[20:],kind='reg')
-        # plt.show()
+        new.plot(subplots=True, figsize=(18, 25))
+        plt.legend(loc=0)
+        plt.grid(True)
+        sns.pairplot(new[20:],kind='reg')
+        plt.show()
     except:
         print('error')
 

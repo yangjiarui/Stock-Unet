@@ -715,7 +715,9 @@ def Main(start,end,interval,NUM_col=0,epoch=3,bz=4):
     save['acc_is']=pd.Series(acc_is)
     save.index=save['true_index']
     sa=save.iloc[:,1:]
+    sa.to_csv('res/'+'%s_%s_%s.csv'%(NUM_col,start,end))
     print(sa)
+
     return sa,oringn_df,labels.iloc[:,NUM_col]
 
 #if sum(save['acc_is'])>=2.2: #and np.std(save['acc_is'])<=0.08:
@@ -753,8 +755,8 @@ def evaluate_mode(defined_df,NUM_col):
             #     good.append(0)
     print('\nrealized_acc(nomarator contains first Index):',j/len(defined_df.index))
     return good,j/len(defined_df.index)
-NUM_col=15  ###pld good   ####5 good
-resualt_file,oring_df,index_col=Main(start=8,end=16,interval=1,NUM_col=NUM_col,epoch=3,bz=4)
+NUM_col=30  ###pld good   ####5 good
+resualt_file,oring_df,index_col=Main(start=35,end=40,interval=1,NUM_col=NUM_col,epoch=10,bz=8)
 good,score=evaluate_mode(resualt_file,NUM_col=NUM_col)
 
 
@@ -763,6 +765,8 @@ pre=MinMaxScaler().fit_transform(pre.iloc[:,1].values.reshape(-1,1))[:4096]
 #from keras.models import load_model
 
 look=[]
+
+
 
 if index_col.sum()/len(index_col) < 0.5:
     most_offen='lowwer'
@@ -799,6 +803,10 @@ if len(good)>=1 or len(good)%2==1:
         print('next traiding day is %s or same' % other)
 else:
     print ('try agian (due to statues of GPU)')
+
+
+
+
 
 
 
